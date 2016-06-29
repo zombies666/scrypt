@@ -44,7 +44,7 @@ usage(void)
 
 	fprintf(stderr,
 	    "usage: scrypt {enc | dec} [-M maxmem] [-m maxmemfrac]"
-	    " [-t maxtime] [-v] infile\n"
+	    " [-t maxtime] [-v] [-P] infile\n"
 	    "              [outfile]\n"
 	    "       scrypt --version\n");
 	exit(1);
@@ -55,6 +55,7 @@ main(int argc, char *argv[])
 {
 	FILE * infile;
 	FILE * outfile;
+	int devtty = 1;
 	int dec = 0;
 	size_t maxmem = 0;
 	double maxmemfrac = 0.5;
@@ -78,8 +79,10 @@ main(int argc, char *argv[])
 	} else if (strcmp(argv[1], "--version") == 0) {
 		fprintf(stdout, "scrypt %s\n", PACKAGE_VERSION);
 		exit(0);
-	} else
+	} else {
+		warn0("First argument must be 'enc' or 'dec'.\n");
 		usage();
+	}
 	argc--;
 	argv++;
 
@@ -98,10 +101,14 @@ main(int argc, char *argv[])
 		GETOPT_OPT("-v"):
 			verbose = 1;
 			break;
+		GETOPT_OPT("-P"):
+			devtty = 0;
+			break;
 		GETOPT_MISSING_ARG:
 			warn0("Missing argument to %s\n", ch);
-			/* FALLTHROUGH */
+			usage();
 		GETOPT_DEFAULT:
+			warn0("illegal option -- %s\n", ch);
 			usage();
 		}
 	}
@@ -134,7 +141,7 @@ main(int argc, char *argv[])
 
 	/* Prompt for a password. */
 	if (readpass(&passwd, "Please enter passphrase",
-	    dec ? NULL : "Please confirm passphrase", 1))
+	    (dec || !devtty) ? NULL : "Please confirm passphrase", devtty))
 		exit(1);
 
 	/* Encrypt or decrypt. */

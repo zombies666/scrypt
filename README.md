@@ -81,7 +81,7 @@ Using scrypt as a KDF
 To use scrypt as a
 [key derivation function](https://en.wikipedia.org/wiki/Key_derivation_function)
 (KDF), take a
-look at the `lib/crypto/crypto_enc.h` header, which provides:
+look at the `lib/crypto/crypto_scrypt.h` header, which provides:
 
 ```
 /**
@@ -96,6 +96,39 @@ look at the `lib/crypto/crypto_enc.h` header, which provides:
 int crypto_scrypt(const uint8_t *, size_t, const uint8_t *, size_t, uint64_t,
     uint32_t, uint32_t, uint8_t *, size_t);
 ```
+
+
+Building
+--------
+
+Normal users should only use the signed tarballs from https://tarsnap.com, but
+for experimental development, use:
+ 
+    autoreconf -i
+    ./configure
+    make
+
+In order to support the `AX_CFLAGS_WARN_ALL` autoconf directive, you will need
+to install the autoconf archive.  On Debian systems, use the
+`autoconf-archive` package; on FreeBSD, use `devel/autoconf-archive`.
+
+
+Testing
+-------
+
+A small test suite can be run with:
+
+    make test
+
+Memory-testing normal operations with valgrind (takes approximately 4 times as
+long as no valgrind tests) can be enabled with:
+
+    make test USE_VALGRIND=1
+
+Memory-testing all tests with valgrind (requires over 1 GB memory, and takes
+approximately 4 times as long as `USE_VALGRIND=1`) can be enabled with:
+
+    make test USE_VALGRIND=2
 
 
 Mailing list

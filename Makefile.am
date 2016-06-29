@@ -21,14 +21,14 @@ scrypt_SOURCES=		main.c					\
 			lib/scryptenc/scryptenc_cpuperf.c	\
 			lib/util/memlimit.c			\
 			cpusupport-config.h
-AM_CPPFLAGS=		-I $(srcdir)/libcperciva/alg		\
-			-I $(srcdir)/libcperciva/cpusupport	\
-			-I $(srcdir)/libcperciva/crypto		\
-			-I $(srcdir)/libcperciva/util		\
-			-I $(srcdir)/lib/crypto			\
-			-I $(srcdir)/lib/scryptenc 		\
-			-I $(srcdir)/lib/util			\
-			-I . -D CPUSUPPORT_CONFIG_FILE=\"cpusupport-config.h\"
+AM_CPPFLAGS=		-I$(srcdir)/libcperciva/alg		\
+			-I$(srcdir)/libcperciva/cpusupport	\
+			-I$(srcdir)/libcperciva/crypto		\
+			-I$(srcdir)/libcperciva/util		\
+			-I$(srcdir)/lib/crypto			\
+			-I$(srcdir)/lib/scryptenc 		\
+			-I$(srcdir)/lib/util			\
+			-DCPUSUPPORT_CONFIG_FILE=\"cpusupport-config.h\"
 scrypt_LDADD=		libcperciva_aesni.a libscrypt_sse2.a
 scrypt_man_MANS=	scrypt.1
 
@@ -79,6 +79,7 @@ EXTRA_DIST = \
 	scrypt_platform.h					\
 	test/test_scrypt.c					\
 	test/test_scrypt.good					\
+	test/test_scrypt_good.enc				\
 	test/test_scrypt.sh
 
 test_test_scrypt_SOURCES =	test/test_scrypt.c			\
@@ -90,3 +91,13 @@ test_test_scrypt_SOURCES =	test/test_scrypt.c			\
 			lib/crypto/crypto_scrypt_smix.c			\
 			cpusupport-config.h
 test_test_scrypt_LDADD=	libscrypt_sse2.a
+
+.PHONY: test
+# we can't only build "scrypt test/test_scrypt" because that won't build
+# the BUILT_SOURCES.
+test: all
+	$(top_srcdir)/test/test_scrypt.sh			\
+		./scrypt					\
+		test/test_scrypt				\
+		$(top_srcdir)/test/test_scrypt.good		\
+		$(top_srcdir)/test/test_scrypt_good.enc
