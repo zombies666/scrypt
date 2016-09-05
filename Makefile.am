@@ -1,4 +1,4 @@
-bin_PROGRAMS=	scrypt tests/test_scrypt
+bin_PROGRAMS=	scrypt tests/test_scrypt tests/valgrind/potential-memleaks
 dist_man_MANS=$(scrypt_man_MANS)
 
 scrypt_SOURCES=		main.c					\
@@ -93,8 +93,17 @@ tests_test_scrypt_SOURCES =	tests/test_scrypt.c			\
 			cpusupport-config.h
 tests_test_scrypt_LDADD=	libscrypt_sse2.a
 
+tests_valgrind_potential_memleaks_SOURCES = \
+	tests/valgrind/potential-memleaks.c
+
+tests/valgrind/suppressions: \
+		tests/valgrind/potential-memleaks
+	echo "a" | (valgrind --leak-check=full --show-leak-kinds=all \
+		--log-file=$*.log --gen-suppressions=all ./$?)
+	(grep -v "^==" $*.log | grep -v "   fun:main" - > $@) || true
+
 .PHONY: test
 # we can't only build "scrypt tests/test_scrypt" because that won't build
 # the BUILT_SOURCES.
-test: all
+test: all tests/valgrind/suppressions
 	$(top_srcdir)/tests/test_scrypt.sh .
