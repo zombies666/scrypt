@@ -68,6 +68,7 @@ setup_valgrind_cmd() {
 			--log-file=$val_logfilename \
 			--leak-check=full --show-leak-kinds=all \
 			--errors-for-leak-kinds=all \
+			--suppressions=tests/valgrind/suppressions \
 			--error-exitcode=$valgrind_exit_code "
 	else
 		valgrind_cmd=""
